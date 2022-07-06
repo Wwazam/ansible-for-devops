@@ -1,0 +1,31 @@
+---
+- name: Docker setup
+  hosts: host
+  become: true
+
+  tasks:
+    - name: start docker
+      service:
+        name: docker
+        state: started
+
+    - name: build docker images from Dockerfile
+      docker_image:
+        name: alpine
+        tag: 3.16
+        source: pull
+        state: present
+      with_items:
+        - { name: data, tag: latest, directory: data }
+        - { name: flask, tag: latest, directory: www }
+        - { name: db, tag: latest, directory: db }
+
+- name: Create a data container
+  tags: a
+  hosts: host
+  tasks:
+    - docker_container:
+        name: mydata
+        image: test
+        volumes:
+          - /data
